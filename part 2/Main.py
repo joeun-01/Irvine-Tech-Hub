@@ -1,25 +1,25 @@
 import pandas as panda
 import matplotlib.pyplot as plt
 
+# Read CSV file
 csv = panda.read_csv('/Users/joeun/PycharmProjects/WebScraping/part 1/musinsa.csv')
 # print(csv)
 
+# Make datafram from CSV file
 data = panda.DataFrame(csv)
 # print(data)
 
-# 달러 표시를 제거
-data['Price'] = data['Price'].str.replace("$", '').astype(int)
+# 1. Which brands are the most popular? - TOP 10
 
-# 어떤 브랜드가 가장 인기가 많을까?
-# 상위 10위 브랜드 구하기
-# 브랜드별로 묶기
+# Group by brand
 brand = data.groupby('Brand')['Ranking'].count().reset_index()
-brand = brand.rename(columns={'Ranking': 'Count'})  # 'Ranking' 열의 이름을 'Brand_Count'로 변경
-# print(brand)
+brand = brand.rename(columns={'Ranking': 'Count'})  # Renamed 'Ranking' column to 'Brand_Count'
 
+# Pick the top 10 brands and count the number of times they appear in the ranking
 tenth = brand.nlargest(10, 'Count', keep='all').reset_index()
 # print(tenth)
 
+# Visualize the data with the bar graph
 tenth.plot(kind='bar', x='Brand', y='Count')
 plt.title('Musinsa Brand Top 10')
 plt.rc(group='font', family='Arial')
@@ -27,25 +27,52 @@ plt.xlabel('Brand')
 plt.ylabel('Count')
 plt.show()
 
-# 가격이 주는 순위 영향
-# # 가장 비율이 높은 가격 구하기
-# # 가격별로 묶기
-# # print(data)
+# 2. How much will the price affect the ranking?
 
-# 가격 평균 중앙값 표준편차
-print(data['Price'].median())  # 중앙값
-print(data['Price'].std())  # 표준편차
-print(data['Price'].sum() / 999)  # 평균
-print(data['Price'].min())  # 최소
-print(data['Price'].max())  # 최대
+# 2-1. Find the price that most appeared in the ranking
 
-# 'Price' 열을 범위에 따라 나누고, 각 범위의 데이터 갯수를 세기
-price = data.groupby(panda.cut(data['Price'], [0, 25, 50, 75, 100, 1000])).size().reset_index(name='Count')
-print(price)
+# Remove the dollar mark and change it to int type
+data['Price'] = data['Price'].str.replace("$", '').astype(int)
 
-price.plot(kind='bar', x='Price', y='Count')
+# Count the number of appearances in the ranking by price range
+price = data.groupby(panda.cut(data['Price'], [0, 20, 40, 60, 80, 100, 1000])).size().reset_index(name='Count')
+# print(price)
+
+# Visualize the data with the line graph
+price.plot(kind='line', x='Price', y='Count')
 plt.title('Musinsa Price')
 plt.rc(group='font', family='Arial')
 plt.xlabel('Price')
 plt.ylabel('Count')
+plt.show()
+
+# 2-2. Find the median price, standard deviation, and average for each ranking range
+price_range = panda.cut(data['Ranking'], [0, 200, 400, 600, 800, 1000])
+group_range = data.groupby(price_range)
+
+group_median = []
+group_std = []
+group_average = []
+
+# Find the median, standard deviation, and mean of each range
+for group_name, group_data in group_range:
+    group_median.append(group_data['Price'].median())  # 중앙값
+    group_std.append(group_data['Price'].std())  # 표준편차
+    group_average.append(group_data['Price'].sum() / len(group_data))  # 평균
+
+price_data = panda.DataFrame()
+price_data["Median"] = group_median
+price_data["Standard Deviation"] = group_std
+price_data["Average"] = group_average
+
+# Create DataFrame
+price_data.index = ['0-200', '200-400', '400-600', '600-800', '800-1000']
+# print(price_data)
+
+# Visualize the data with the bar graph
+price_data.plot(kind='bar')
+plt.title('Price data by ranking')
+plt.rc(group='font', family='Arial')
+plt.xlabel('Range')
+plt.ylabel('Price Data')
 plt.show()
