@@ -35,6 +35,7 @@ The following is the result of the graph.
 | SAINTPAIN     | 20   |
 | YALE          | 20   |
 
+<br>
 
 ### 2. How much will the price affect the ranking?
 #### 2-1) Most appeared price in the ranking
@@ -48,6 +49,8 @@ The graph shows that clothing between $20 and $40 is the most popular.
 The next most purchased price is between $40 and $60.
 
 More detailed figures for prices were calculated from the following graphs.
+
+<br>
 
 #### 2-2) Median price, standard deviation, and average for each ranking range
 ![img_2.png](img_2.png)
